@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Project</title>
+    <link
+      rel="stylesheet"
+      href="	https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,800;0,900;1,300;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="public/css/style.css" />
+  </head>
+  <body style="font-family: Poppins; background-color: #e3e7eb">
+    <nav class="navbar navbar-expand-lg bg-light" style="height: 7vh">
+      <div class="container">
+        <a class="navbar-brand" href="#"
+          ><img src="/public/image/logo2.png" alt=""
+        /></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarTogglerDemo02"
+          aria-controls="navbarTogglerDemo02"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item mx-4">
+              <a class="nav-link" aria-current="page" href="/">Home</a>
+            </li>
+            {{if .DataSesion.IsLogin}}
+            <li class="nav-item me-2">
+              <a class="nav-link" href="/add-blog">Add Project</a>
+            </li>
+            {{end}}
+          </ul>
+          <a href="/contact">
+            <button class="btn btn-dark text-white" type="submit">
+              Contact Me
+            </button>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5" style="width: 500px">
+      <form
+        action="/update-blog/{{.EditProject.Id}}"
+        method="POST"
+        class="m-auto"
+      >
+        <h1 class="text-center fw-bold mb-5">EDIT MY PROJECT</h1>
+        <label for="name-project" class="mb-2 fs-5">Project Name</label>
+        <input
+          type="text"
+          name="nameProject"
+          id="nameProject"
+          class="w-100 rounded mb-3 shadow border-0 p-3"
+          value="{{.EditProject.Name}}"
+        />
+        <div class="d-flex">
+          <div class="me-3">
+            <label for="start-date" class="mb-2 fs-5">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              id="start-date"
+              placeholder="hidden"
+              class="w-100 rounded mb-3 shadow border-0 p-3"
+              value="{{.EditProject.FormatStartDate}}"
+            />
+          </div>
+          <div>
+            <label for="end-date" class="mb-2 fs-5">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              id="end-date"
+              class="w-100 rounded shadow border-0 p-3"
+              value="{{.EditProject.FormatEndDate}}"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="description" class="mb-2 fs-5">Description</label>
+          <textarea
+            name="description"
+            id="description"
+            cols="30"
+            rows="6"
+            class="w-100 rounded shadow border-0 p-3"
+            placeholder=""
+          >{{.EditProject.Deskripsi}}</textarea>
+        </div>
+        <label class="mb-2 fs-5 mt-2">Technologies</label>
+        <table class="mb-2">
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                name="nodejs"
+                id="nodejs"
+                value="node-js"
+              />
+              <label for="nodejs" class="fs-5 me-5 text-secondary"
+                >Node Js</label
+              >
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="golang"
+                id="golang"
+                value="golang"
+                class="ms-5"
+              />
+              <label for="golang" class="fs-5 text-secondary">Golang</label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                name="reactjs"
+                id="reactjs"
+                value="react"
+              />
+              <label for="reactjs" class="fs-5 text-secondary">React Js</label>
+            </td>
+            <td>
+              <input
+                type="checkbox"
+                name="vuejs"
+                id="vuejs"
+                value="vuejs"
+                class="ms-5"
+              />
+              <label for="vuejs" class="fs-5 text-secondary">Vue Js</label>
+            </td>
+          </tr>
+        </table>
+        <div class="mb-2">
+          <label for="" class="fs-5 mb-3">Upload image</label>
+          <div class="shadow rounded mb-4">
+            <label
+              for="upload"
+              class="d-flex justify-content-between align-items-center p-0 bg-white rounded"
+            >
+              <p
+                class="m-0 fs-5 p-2 rounded text-muted"
+                style="background-color: #e4e4e4"
+              >
+                Choose
+              </p>
+              <i class="fa-solid fa-paperclip fs-4 me-2"></i>
+            </label>
+            <input type="file" id="upload" hidden />
+          </div>
+        </div>
+        <button class="btn btn-dark rounded-4 float-end px-3 py-2">
+          submit
+        </button>
+      </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+      src="https://kit.fontawesome.com/90b8d25e38.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
