@@ -74,7 +74,7 @@
     <!-- section 1 -->
     <div class="container mt-5" style="width:500px ;">
       <h2 class="text-center mb-5">ADD MY PROJECT</h2>
-      <form action="/store-blog" method="post">
+      <form action="/store-blog" method="post" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="input-title" class="form-label">Project Name</label>
           <input type="text" class="form-control border-0 shadow p-2 w-100 rounded" id="input-title" name="title">
@@ -97,21 +97,21 @@
         <table class="mt-4" >
           <tr >
             <td>
-                <input class="form-check-input " type="checkbox" value="node" id="node" name="node">
+                <input class="form-check-input " type="checkbox" value="node" id="node" name="tech">
                 <label class="form-check-label ms-3" for="node"> Node Js </label>
             </td>
             <td>
-              <input class="form-check-input ms-5" type="checkbox" value="laravel" id="laravel" name="laravel">
+              <input class="form-check-input ms-5" type="checkbox" value="laravel" id="laravel" name="tech">
               <label class="form-check-label ms-3" for="laravel"> Laravel </label>
           </td>
           </tr>
           <tr >
             <td>
-                <input class="form-check-input" type="checkbox" value="react" id="react" name="react">
+                <input class="form-check-input" type="checkbox" value="react" id="react" name="tech">
                 <label class="form-check-label ms-3" for="react"> React Js </label>
             </td>
             <td>
-              <input class="form-check-input ms-5" type="checkbox" value="golang" id="golang" name="golang">
+              <input class="form-check-input ms-5" type="checkbox" value="golang" id="golang" name="tech">
               <label class="form-check-label ms-3" for="golang"> Go-lang </label>
           </td>
           </tr>

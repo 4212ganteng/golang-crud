@@ -71,36 +71,45 @@
           </p>
           <div class="my-5">
             <h2 class="mb-4">Technologies</h2>
+            {{range $index, $icon := .detail.Checkbox}}
+
             <table class="mt-5">
               <tr>
+                {{if eq $icon "node"}}
                 <td>
-                  <i class="fa-brands fa-{{.detail.Node}} fs-4"></i>
+                  <i class="fa-brands fa-node fs-4"></i>
                   <a class="fs-4 text-decoration-none text-dark me-4">
-                    {{.detail.Node}}</a
+                    Node js</a
                   >
                 </td>
+                {{else if eq $icon "golang"}}
                 <td>
-                  <i class="fa-brands fa-{{.detail.Golang}} fs-4"></i>
+                  <i class="fa-brands fa-golang fs-4"></i>
                   <a class="fs-4 text-decoration-none text-dark me-4">
-                    {{.detail.Golang}}</a
+                   Golang</a
                   >
                 </td>
               </tr>
               <tr>
+                {{else if eq $icon "react"}}
+
                 <td class="pt-5">
-                  <i class="fa-brands fa-{{.detail.React}} fs-4"></i>
+                  <i class="fa-brands fa-react fs-4"></i>
                   <a class="fs-4 text-decoration-none text-dark me-4">
-                    {{.detail.React}}</a
+                    Reactjs</a
                   >
                 </td>
+                {{else if eq $icon "laravel"}}
                 <td class="pt-5">
-                  <i class="fa-brands fa-{{.detail.Laravel}} fs-4"></i>
+                  <i class="fa-brands fa-laravel} fs-4"></i>
                   <a class="fs-4 text-decoration-none text-dark me-4">
-                    {{.detail.Laravel}}</a
-                  >
+                    Laravel
+                    </a>
                 </td>
               </tr>
+              {{end}}
             </table>
+            {{end}}
           </div>
         </div>
       </div>

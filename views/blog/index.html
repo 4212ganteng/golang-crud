@@ -141,11 +141,11 @@
     <div class="section2">
       <h2 class="text-center my-5 fs-1">MY PROJECT</h2>
       <div class="card-group container">
-        {{range  $index, $data := .show}}
+        {{range $index, $data := .show}}
         <div class="col-sm-4">
           <div class="card p-3 shadow me-3">
             <img
-              src="/public/assets/image/2.jpg"
+              src="/uploads/{{$data.Gambar}}"
               class="card-img-top rounded-3"
               alt="..."
               width="100%"
@@ -153,16 +153,23 @@
             <div class="card-body">
               <a href="/detail-blog/{{$data.Id}}">
               <h3 class="card-title">{{$data.Name}}</h3>
-            </a>
+              </a>
               <span class="text-muted">Durasi : {{$data.Duration}}</span>
               <p class="card-text mt-3">
                 {{$data.Deskripsi}}
               </p>
               <div class="icon fs-2 text-center">
-                <i class="fa-brands fa-{{$data.Node}}"></i>
-                <i class="fa-brands fa-{{$data.React}}"></i>
-                <i class="fa-brands fa-{{$data.Laravel}}"></i>
-                <i class="fa-brands fa-{{$data.Golang}}"></i>
+                {{range $index, $icon := $data.Checkbox}}
+                {{if eq $icon "node"}}
+                <i class="fa-brands fa-node"></i>
+                {{else if eq $icon "react"}}
+                <i class="fa-brands fa-react"></i>
+                {{else if eq $icon "laravel"}}
+                <i class="fa-brands fa-laravel"></i>
+                {{else if eq $icon "golang"}}
+                <i class="fa-brands fa-golang"></i>
+                {{end}}
+                {{end}}
               </div>
             </div>
             <div class="d-flex justify-content-evenly">

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"golang-manipulate/connection"
+	"golang-manipulate/middleware"
 	"html/template"
 	"log"
 	"net/http"
@@ -28,20 +29,18 @@ type Struktur struct {
 	Start_date time.Time
 	End_date time.Time
 	Deskripsi string
-	Node string
-	React string
-	Laravel string
-	Golang string
+	Checkbox []string
 	Gambar string
 	Duration string
 	Id int
 	IsLogin bool
 	FormatStartDate string
 	FormatEndDate string
+	Author string
 }
 
 type Structuser struct{
-	Id int
+	ID int
 	Name string
 	Email string
 	Password string
@@ -51,13 +50,15 @@ var iniArray = []Struktur{}
 func main() {
 	route := mux.NewRouter()
 	connection.Dbkonek()
+	// images
+	route.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 	// path prefix
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	// routing
 
 	route.HandleFunc("/",home).Methods("GET")
 	route.HandleFunc("/add-blog", addProject).Methods("GET")
-	route.HandleFunc("/store-blog", storeProject).Methods("POST")
+	route.HandleFunc("/store-blog", middleware.UploadFile(storeProject)).Methods("POST")
 	route.HandleFunc("/detail-blog/{id}", detailProject).Methods("GET")
 	route.HandleFunc("/edit/{id}", editProject).Methods("GET")
 	route.HandleFunc("/update-blog/{id}", updateProject).Methods("POST")
@@ -114,14 +115,14 @@ func home(res http.ResponseWriter, req *http.Request)  {
 
 	Data.FlashData = strings.Join(flashes, "")	
 
-	data,err := connection.Konekdb.Query(context.Background(), "SELECT id, name, start_date, end_date, description, durations FROM tb_projects")
+	data,err := connection.Konekdb.Query(context.Background(), "SELECT id, name, description, durations, image, technologies FROM tb_projects")
 
 	var result []Struktur
 
 	for data.Next(){
 		var each = Struktur{}
 
-		err := data.Scan(&each.Id, &each.Name, &each.Start_date, &each.End_date, &each.Deskripsi, &each.Duration)
+		err := data.Scan(&each.Id, &each.Name, &each.Deskripsi, &each.Duration, &each.Gambar, &each.Checkbox)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -158,10 +159,16 @@ func storeProject(res http.ResponseWriter, req *http.Request)  {
 	start_date := req.PostForm.Get("start-date")
 	end_date := req.PostForm.Get("end-date")
 	desc := req.PostForm.Get("desc")
-	// node := req.PostForm.Get("node")
-	// laravel := req.PostForm.Get("laravel")
-	// react := req.PostForm.Get("react")
-	// // golang := req.PostForm.Get("golang")
+	var checkbox []string
+	checkbox = req.Form["tech"]
+	dataContext := req.Context().Value("dataFile")
+	images := dataContext.(string)
+
+	var store = sessions.NewCookieStore([]byte("SESSION_KEY"))
+	session, _ := store.Get(req, "SESSION_KEY")
+
+	// Mendapatkan author_id
+	author := session.Values["ID"].(int)
 
 	layouts := "2006-01-02"
 	convStartDate, _ := time.Parse(layouts, start_date)  
@@ -183,8 +190,7 @@ func storeProject(res http.ResponseWriter, req *http.Request)  {
     } else if days >= 365 {
         duration = strconv.Itoa(int(years)) + " years"
     }
-
-	_, err = connection.Konekdb.Exec(context.Background(), "INSERT INTO tb_projects(name, start_date, end_date, description, durations) VALUES ($1,$2,$3,$4,$5)",title, convStartDate,convEndtDate, desc, duration)
+	_, err = connection.Konekdb.Exec(context.Background(), "INSERT INTO tb_projects(name, start_date, end_date, description, durations, author_id, image, technologies) VALUES ($1,$2,$3,$4,$5,$6,$7, $8)",title, convStartDate,convEndtDate, desc, duration, author, images, checkbox)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		res.Write([]byte("message : " + err.Error()))
@@ -210,7 +216,7 @@ func detailProject(res http.ResponseWriter, req *http.Request)  {
 
 	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 
-	err = connection.Konekdb.QueryRow(context.Background(), " SELECT id, name, start_date, end_date, description, durations FROM tb_projects WHERE id=$1", id).Scan(&blogDetail.Id, &blogDetail.Name, &blogDetail.Start_date, &blogDetail.End_date, &blogDetail.Deskripsi, &blogDetail.Duration)
+	err = connection.Konekdb.QueryRow(context.Background(), " SELECT id, name, start_date, end_date, description, durations, technologies FROM tb_projects WHERE id=$1", id).Scan(&blogDetail.Id, &blogDetail.Name, &blogDetail.Start_date, &blogDetail.End_date, &blogDetail.Deskripsi, &blogDetail.Duration, &blogDetail.Checkbox)
 
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
@@ -222,7 +228,6 @@ func detailProject(res http.ResponseWriter, req *http.Request)  {
 	data := map[string]interface{}{
 		"detail" : blogDetail,
 	}
-	fmt.Println(data)
 	theme.Execute(res, data)
 }
 func editProject(res http.ResponseWriter, req *http.Request){
@@ -259,11 +264,35 @@ func updateProject(res http.ResponseWriter, req *http.Request){
 	}
 
 	title := req.PostForm.Get("nameProject")
-	startDate := req.PostForm.Get("startDate")
-	endDate := req.PostForm.Get("endDate")
 	description := req.PostForm.Get("description")
+	var checkbox []string
+	checkbox = req.Form["tech"]
+	start_date := req.PostForm.Get("startDate")
+	end_date := req.PostForm.Get("endDate")
+	layouts := "2006-01-02"
+	convStartDate, _ := time.Parse(layouts, start_date)  
+	convEndtDate, _ := time.Parse(layouts, end_date)  
+
+	hourse := convEndtDate.Sub(convStartDate).Hours()
+	days := hourse/24
+	weeks := days/7
+	months := days/30
+	years := months/12
+
+	var duration string
+	if days >= 1 && days <= 6 {
+        duration = strconv.Itoa(int(days)) + " days"
+    } else if days >= 7 && days <= 29 {
+        duration = strconv.Itoa(int(weeks)) + " weeks"
+    } else if days >= 30 && days <= 364 {
+        duration = strconv.Itoa(int(months)) + " months"
+    } else if days >= 365 {
+        duration = strconv.Itoa(int(years)) + " years"
+    }
 		
-	_, err = connection.Konekdb.Exec(context.Background(), "UPDATE tb_projects SET name=$1, start_date=$2, end_date=$3, description=$4 WHERE id=$5",title,startDate,endDate, description, id)
+	_, err = connection.Konekdb.Exec(context.Background(), "UPDATE tb_projects SET name=$1, start_date=$2, end_date=$3, description=$4, technologies=$5, durations=$6 WHERE id=$7",title,convStartDate,convEndtDate, description, checkbox, duration, id)
+
+	
 
 	http.Redirect(res, req, "/", http.StatusFound)
 }
@@ -340,7 +369,7 @@ func login(res http.ResponseWriter, req *http.Request)  {
 	user := Structuser{}
 
 	// mengambil data email, dan melakukan pengecekan email
-	err = connection.Konekdb.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1",email).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	err = connection.Konekdb.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1",email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		res.Write([]byte("message : " + err.Error()))
@@ -360,6 +389,7 @@ func login(res http.ResponseWriter, req *http.Request)  {
 
 	session.Values["Name"] = user.Name
 	session.Values["Email"] = user.Email
+	session.Values["ID"] = user.ID
 	session.Values["IsLogin"] = true
 // password jangan d masukin sesion bahaya!
 	session.Options.MaxAge = 10800 //3jam(expired cookie)
